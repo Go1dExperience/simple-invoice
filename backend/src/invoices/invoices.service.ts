@@ -1,7 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { calculateTotals } from './logic/calculate-totals';
+import { deriveStatus } from './logic/derive-status';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 
 const SYMBOLS: Record<string, string> = { AUD: 'AU$', USD: 'US$', GBP: '£' };
@@ -50,10 +51,14 @@ export class InvoicesService {
     }
   }
 
-  // shared mapper (used by findOne/findAll in later tasks)
+  async findOne(id: string) {
+    const inv = await this.prisma.invoice.findUnique({ where: { id }, include: { customer: true, items: true } });
+    if (!inv) throw new NotFoundException('Invoice not found');
+    return this.toDetail(inv, new Date());
+  }
+
+  // shared mapper (used by findOne/findAll)
   toDetail(inv: any, today: Date) {
-    // deriveStatus imported in Task A8 wiring; inline here to keep create testable
-    const { deriveStatus } = require('./logic/derive-status');
     return {
       invoiceId: inv.id,
       invoiceNumber: inv.invoiceNumber,
