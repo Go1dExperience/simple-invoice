@@ -1,0 +1,11 @@
+{
+  "name": "simple-invoice",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "seed": "npm run seed --workspace backend",
+    "dev:api": "npm run start:dev --workspace backend",
+    "dev:web": "npm run dev --workspace frontend"
+  }
+}

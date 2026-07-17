@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InvoiceStatus {
+  Draft
+  Pending
+  Paid
+  // NOTE: Overdue is NEVER stored. It is derived at read time.
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique
+  passwordHash String
+  fullname     String
+  createdAt    DateTime  @default(now()) @db.Timestamptz
+  invoices     Invoice[]
+
+  @@map("users")
+}
+
+model Customer {
+  id           String    @id @default(uuid()) @db.Uuid
+  fullname     String
+  email        String
+  mobileNumber String?
+  address      String?
+  createdAt    DateTime  @default(now()) @db.Timestamptz
+  invoices     Invoice[]
+
+  @@index([fullname])
+  @@map("customers")
+}
+
+model Invoice {
+  id               String        @id @default(uuid()) @db.Uuid
+  invoiceNumber    String        @unique
+  invoiceReference String?
+  invoiceDate      DateTime      @db.Date
+  dueDate          DateTime      @db.Date
+  currency         String
+  currencySymbol   String
+  description      String?
+  status           InvoiceStatus @default(Draft)
+  invoiceSubTotal  Decimal       @db.Decimal(14, 2)
+  totalTax         Decimal       @db.Decimal(14, 2)
+  totalDiscount    Decimal       @db.Decimal(14, 2)
+  totalAmount      Decimal       @db.Decimal(14, 2)
+  totalPaid        Decimal       @default(0) @db.Decimal(14, 2)
+  balanceAmount    Decimal       @db.Decimal(14, 2)
+  createdAt        DateTime      @default(now()) @db.Timestamptz
+
+  createdBy   String   @db.Uuid
+  creator     User     @relation(fields: [createdBy], references: [id])
+  customerId  String   @db.Uuid
+  customer    Customer @relation(fields: [customerId], references: [id])
+  items       InvoiceItem[]
+
+  @@index([status])
+  @@index([invoiceDate])
+  @@index([dueDate])
+  @@index([totalAmount])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  invoiceId String  @db.Uuid
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  name      String
+  quantity  Int
+  rate      Decimal @db.Decimal(14, 2)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
