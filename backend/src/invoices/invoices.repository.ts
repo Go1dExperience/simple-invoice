@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
-import { ListInvoicesQuery } from "./dto/list-invoices.dto";
 
 export interface CreateInvoiceInput {
   dto: CreateInvoiceDto;

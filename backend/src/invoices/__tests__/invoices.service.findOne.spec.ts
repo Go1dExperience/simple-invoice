@@ -14,7 +14,7 @@ const row = {
 describe('InvoicesService.findOne', () => {
   it('returns detail with derived Overdue status for a past-due unpaid invoice', async () => {
     const prisma = { invoice: { findUnique: jest.fn().mockResolvedValue(row) } } as any;
-    const service = new InvoicesService(prisma);
+    const service = new InvoicesService({} as any, prisma);
     jest.useFakeTimers().setSystemTime(new Date('2026-08-01'));
     const res = await service.findOne('inv1');
     expect(res.status).toBe('Overdue');
@@ -23,6 +23,6 @@ describe('InvoicesService.findOne', () => {
   });
   it('throws 404 when the invoice does not exist', async () => {
     const prisma = { invoice: { findUnique: jest.fn().mockResolvedValue(null) } } as any;
-    await expect(new InvoicesService(prisma).findOne('nope')).rejects.toBeInstanceOf(NotFoundException);
+    await expect(new InvoicesService({} as any, prisma).findOne('nope')).rejects.toBeInstanceOf(NotFoundException);
   });
 });

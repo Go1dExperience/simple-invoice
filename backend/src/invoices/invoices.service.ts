@@ -2,7 +2,6 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  Optional,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -16,7 +15,10 @@ const SYMBOLS: Record<string, string> = { AUD: "AU$", USD: "US$", GBP: "£" };
 
 @Injectable()
 export class InvoicesService {
-  constructor(private repo: InvoicesRepository, @Optional() private prisma?: PrismaService) {}
+  constructor(
+    private repo: InvoicesRepository,
+    private prisma: PrismaService,
+  ) {}
 
   async create(dto: CreateInvoiceDto, userId: string) {
     const { subTotal, taxAmount, totalAmount } = calculateTotals({
@@ -80,7 +82,7 @@ export class InvoicesService {
     }
 
     const [rows, total] = await Promise.all([
-      this.prisma!.invoice.findMany({
+      this.prisma.invoice.findMany({
         where,
         include: { customer: true },
         orderBy: {
@@ -89,7 +91,7 @@ export class InvoicesService {
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      this.prisma!.invoice.count({ where }),
+      this.prisma.invoice.count({ where }),
     ]);
 
     const data = rows.map((inv: any) => ({
@@ -105,7 +107,7 @@ export class InvoicesService {
   }
 
   async findOne(id: string) {
-    const inv = await this.prisma!.invoice.findUnique({
+    const inv = await this.prisma.invoice.findUnique({
       where: { id },
       include: { customer: true, items: true },
     });
