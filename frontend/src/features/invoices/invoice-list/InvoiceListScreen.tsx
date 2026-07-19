@@ -14,9 +14,7 @@ export const InvoiceListScreen = () => {
   return (
     <div className="mx-auto max-w-5xl p-7">
       <div className="mb-5 flex justify-end">
-        <Button onClick={() => navigate("/invoices/new")}>
-          + New invoice
-        </Button>
+        <Button onClick={() => navigate("/invoices/new")}>+ New invoice</Button>
       </div>
       <Card>
         <InvoiceListFilter />
