@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 
 const D = Prisma.Decimal;
 
@@ -9,7 +9,12 @@ export interface TotalsInput {
   discount: number;
 }
 
-export const calculateTotals = ({ quantity, rate, taxPercent, discount }: TotalsInput) => {
+export const calculateTotals = ({
+  quantity,
+  rate,
+  taxPercent,
+  discount,
+}: TotalsInput) => {
   const subTotal = new D(rate).mul(quantity);
   const taxAmount = subTotal.mul(new D(taxPercent).div(100));
   const totalAmount = subTotal.add(taxAmount).sub(discount);

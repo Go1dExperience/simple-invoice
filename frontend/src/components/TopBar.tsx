@@ -1,15 +1,44 @@
-export const TopBar = ({ name }: { name: string }) => (
-  <div className="sticky top-0 flex items-center justify-between bg-darkBlue px-7 py-5">
-    <div className="flex items-center gap-2.5 text-xl font-extrabold tracking-wide text-white">
-      <span className="h-3 w-3 rounded-full bg-accent shadow-[0_0_0_4px_rgba(255,190,46,.22)]" />
-      SimpleInvoice
-      <small className="text-sm font-medium text-gray-400">· 101 Digital</small>
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+
+export const TopBar = ({ email }: { email: string }) => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  return (
+    <div className="sticky top-0 flex items-center justify-between bg-darkBlue px-7 py-5">
+      <div
+        onClick={() => navigate("/")}
+        className="flex items-center gap-2.5 text-xl font-extrabold tracking-wide text-white hover:cursor-pointer"
+      >
+        <span className="h-3 w-3 rounded-full bg-accent" />
+        SimpleInvoice
+      </div>
+      <div className="flex items-center gap-2.5 text-sm text-gray-400">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="grid h-8 w-8 place-items-center rounded-full border border-accent/45 font-bold text-white outline-none hover:cursor-pointer hover:border-accent">
+              {email.charAt(0).toUpperCase()}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel className="font-normal text-muted-foreground">
+              {email}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={logout} className="cursor-pointer">
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </div>
-    <div className="flex items-center gap-2.5 text-sm text-gray-400">
-      <span>adsfadsf</span>
-      <span className="grid h-8 w-8 place-items-center rounded-full border border-accent/45 font-bold text-white hover:cursor-pointer">
-        {name.charAt(0).toUpperCase()}
-      </span>
-    </div>
-  </div>
-);
+  );
+};

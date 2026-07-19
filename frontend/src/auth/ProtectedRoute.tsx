@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import { useMe } from "../api/useMe";
+import { useMe } from "../features/login/hooks/useMe";
 import { TopBar } from "../components/TopBar";
 
 export const ProtectedRoute = () => {
@@ -9,7 +9,7 @@ export const ProtectedRoute = () => {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return (
     <>
-      <TopBar name={me?.fullname ?? ""} />
+      <TopBar email={me?.email ?? ""} />
       <Outlet />
     </>
   );

@@ -8,7 +8,11 @@ import { calculateTotals } from "./logic/calculate-totals";
 import { deriveStatus } from "./logic/derive-status";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
 import { ListInvoicesQuery } from "./dto/list-invoices.dto";
-import { InvoicesRepository } from "./invoices.repository";
+import {
+  InvoicesRepository,
+  InvoiceWithCustomer,
+  InvoiceWithCustomerAndItems,
+} from "./invoices.repository";
 
 const SYMBOLS: Record<string, string> = { AUD: "AU$", USD: "US$", GBP: "£" };
 
@@ -35,12 +39,6 @@ export class InvoicesService {
       });
       return this.toDetail(invoice, new Date());
     } catch (e) {
-      if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === "P2002"
-      ) {
-        throw new ConflictException("Invoice number already exists");
-      }
       if ((e as { code?: string }).code === "P2002")
         throw new ConflictException("Invoice number already exists");
       throw e;
@@ -53,7 +51,7 @@ export class InvoicesService {
     const today = new Date(new Date().toISOString().slice(0, 10));
     const [rows, total] = await this.repo.findManyByFilter(q, today);
 
-    const data = rows.map((inv: any) => ({
+    const data = rows.map((inv: InvoiceWithCustomer) => ({
       invoiceId: inv.id,
       invoiceNumber: inv.invoiceNumber,
       customerName: inv.customer.fullname,
@@ -71,8 +69,7 @@ export class InvoicesService {
     return this.toDetail(inv, new Date());
   }
 
-  // shared mapper (used by findOne/findAll)
-  toDetail(inv: any, today: Date) {
+  toDetail(inv: InvoiceWithCustomerAndItems, today: Date) {
     return {
       invoiceId: inv.id,
       invoiceNumber: inv.invoiceNumber,
@@ -89,7 +86,7 @@ export class InvoicesService {
         mobileNumber: inv.customer.mobileNumber,
         address: inv.customer.address,
       },
-      items: inv.items.map((i: any) => ({
+      items: inv.items.map((i) => ({
         id: i.id,
         name: i.name,
         quantity: i.quantity,

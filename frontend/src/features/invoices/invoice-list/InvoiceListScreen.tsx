@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useInvoices } from "../../../api/useInvoices";
+import { useInvoices } from "./hooks/useInvoices";
 import { useInvoiceListParams } from "./hooks/useInvoiceListParams";
-import { PageBand } from "../../../components/PageBand";
 import { Card } from "../../../components/Card";
 import { Button } from "../../../components/ui/button";
 import { InvoiceListFilter } from "./components/InvoiceListFilter";
@@ -14,25 +13,13 @@ export const InvoiceListScreen = () => {
 
   return (
     <div className="mx-auto max-w-5xl p-7">
-      <PageBand>
-        <div>
-          <PageBand.Eyebrow>Home</PageBand.Eyebrow>
-          <PageBand.Title>Invoices</PageBand.Title>
-          <PageBand.Sub>
-            All invoices in the system — search, filter, sort and paginate.
-          </PageBand.Sub>
-        </div>
-        <PageBand.Actions>
-          <Button onClick={() => navigate("/invoices/new")}>
-            + New invoice
-          </Button>
-        </PageBand.Actions>
-      </PageBand>
-
+      <div className="mb-5 flex justify-end">
+        <Button onClick={() => navigate("/invoices/new")}>
+          + New invoice
+        </Button>
+      </div>
       <Card>
-        <div className="mb-4 flex flex-wrap gap-3">
-          <InvoiceListFilter />
-        </div>
+        <InvoiceListFilter />
         <InvoiceListTable isLoading={isLoading} data={data} />
       </Card>
     </div>

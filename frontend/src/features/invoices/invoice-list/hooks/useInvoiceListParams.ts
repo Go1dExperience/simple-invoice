@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { ListParams } from "../../../../api/types";
+import { ListParams } from "../../../../types/api";
 
 const DEFAULTS = {
   page: 1,
@@ -14,8 +14,11 @@ export const useInvoiceListParams = () => {
   const params: ListParams = {
     page: Number(searchParams.get("page")) || DEFAULTS.page,
     pageSize: Number(searchParams.get("pageSize")) || DEFAULTS.pageSize,
-    sortBy: (searchParams.get("sortBy") as ListParams["sortBy"]) || DEFAULTS.sortBy,
-    ordering: (searchParams.get("ordering") as ListParams["ordering"]) || DEFAULTS.ordering,
+    sortBy:
+      (searchParams.get("sortBy") as ListParams["sortBy"]) || DEFAULTS.sortBy,
+    ordering:
+      (searchParams.get("ordering") as ListParams["ordering"]) ||
+      DEFAULTS.ordering,
     status: (searchParams.get("status") as ListParams["status"]) || undefined,
     keyword: searchParams.get("keyword") || undefined,
   };
@@ -36,7 +39,8 @@ export const useInvoiceListParams = () => {
 
   return {
     params,
-    setKeyword: (keyword: string) => update({ keyword: keyword || undefined, page: 1 }),
+    setKeyword: (keyword: string) =>
+      update({ keyword: keyword || undefined, page: 1 }),
     setStatus: (status: ListParams["status"]) => update({ status, page: 1 }),
     setSort: (sortBy: ListParams["sortBy"]) => update({ sortBy }),
     setOrdering: (ordering: ListParams["ordering"]) => update({ ordering }),

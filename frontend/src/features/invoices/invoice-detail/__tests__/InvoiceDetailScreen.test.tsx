@@ -14,7 +14,12 @@ const detail = {
   currencySymbol: "AU$",
   description: "x",
   status: "Overdue",
-  customer: { fullname: "Paul", email: "p@x.io", mobileNumber: "9", address: "SG" },
+  customer: {
+    fullname: "Paul",
+    email: "p@x.io",
+    mobileNumber: "9",
+    address: "SG",
+  },
   items: [{ id: "i1", name: "Honda RC150", quantity: 2, rate: "1000.00" }],
   invoiceSubTotal: "2000.00",
   totalTax: "200.00",

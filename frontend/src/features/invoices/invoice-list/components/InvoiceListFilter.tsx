@@ -1,4 +1,3 @@
-import { DisplayStatus } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,16 +9,25 @@ import {
 } from "@/components/ui/select";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useInvoiceListParams } from "../hooks/useInvoiceListParams";
+import { useDebouncedCallback } from "@/hooks/useDebouncedCallback";
+import { DisplayStatus } from "@/types/invoice";
 
 const STATUSES: DisplayStatus[] = ["Draft", "Pending", "Paid", "Overdue"];
+const SEARCH_DEBOUNCE_MS = 300;
+
 export const InvoiceListFilter = () => {
   const { params, setKeyword, setStatus, setSort, setOrdering } =
     useInvoiceListParams();
+  const debouncedSetKeyword = useDebouncedCallback(
+    setKeyword,
+    SEARCH_DEBOUNCE_MS,
+  );
   return (
-    <>
+    <div className="mb-4 flex flex-wrap gap-3">
       <Input
         placeholder="Search by invoice number or customer name…"
-        onChange={(e) => setKeyword(e.target.value)}
+        defaultValue={params.keyword ?? ""}
+        onChange={(e) => debouncedSetKeyword(e.target.value)}
         className="flex-1 rounded-lg"
       />
       <Select
@@ -65,6 +73,6 @@ export const InvoiceListFilter = () => {
           <ArrowUp className="h-4 w-4" />
         )}
       </Button>
-    </>
+    </div>
   );
 };

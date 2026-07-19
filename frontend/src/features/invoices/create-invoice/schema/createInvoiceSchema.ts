@@ -11,7 +11,10 @@ export const createInvoiceSchema = z
     invoiceDate: z.string().min(1, "Invoice date is required"),
     dueDate: z.string().min(1, "Due date is required"),
     itemName: z.string().min(1, "Item name is required"),
-    quantity: z.coerce.number().int().positive("Quantity must be a positive integer"),
+    quantity: z.coerce
+      .number()
+      .int()
+      .positive("Quantity must be a positive integer"),
     rate: z.coerce.number().positive("Rate must be positive"),
     taxPercent: z.coerce.number().min(0),
     discount: z.coerce.number().min(0),

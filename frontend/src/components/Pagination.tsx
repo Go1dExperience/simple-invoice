@@ -1,10 +1,17 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "../lib/utils";
 import { buttonVariants } from "./ui/button";
-import { Pagination as PaginationNav, PaginationContent, PaginationItem } from "./ui/pagination";
+import {
+  Pagination as PaginationNav,
+  PaginationContent,
+  PaginationItem,
+} from "./ui/pagination";
 
 const pageButtonClass = (active: boolean) =>
-  cn(buttonVariants({ variant: active ? "default" : "outline", size: "icon" }), "h-8 w-8 font-normal disabled:opacity-40");
+  cn(
+    buttonVariants({ variant: active ? "default" : "outline", size: "icon" }),
+    "h-8 w-8 font-normal disabled:opacity-40",
+  );
 
 export const Pagination = ({
   page,
@@ -22,7 +29,8 @@ export const Pagination = ({
   return (
     <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
       <span>
-        Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)} of {total}
+        Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, total)}{" "}
+        of {total}
       </span>
       <PaginationNav className="mx-0 w-auto">
         <PaginationContent className="gap-1.5">

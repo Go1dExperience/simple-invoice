@@ -18,16 +18,32 @@ const renderScreen = () =>
 
 it("shows a validation error for an invalid email", async () => {
   renderScreen();
-  fireEvent.change(screen.getByLabelText("Email address"), { target: { value: "nope" } });
+  fireEvent.change(screen.getByLabelText("Email address"), {
+    target: { value: "nope" },
+  });
   fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
   expect(await screen.findByText(/valid email/i)).toBeInTheDocument();
 });
 
 it("logs in with valid credentials", async () => {
-  vi.spyOn(api, "post").mockResolvedValue({ data: { accessToken: "t", user: { id: "1", email: "r@x.io", fullname: "R" } } });
+  vi.spyOn(api, "post").mockResolvedValue({
+    data: {
+      accessToken: "t",
+      user: { id: "1", email: "r@x.io", fullname: "R" },
+    },
+  });
   renderScreen();
-  fireEvent.change(screen.getByLabelText("Email address"), { target: { value: "r@x.io" } });
-  fireEvent.change(screen.getByLabelText("Password"), { target: { value: "Password123" } });
+  fireEvent.change(screen.getByLabelText("Email address"), {
+    target: { value: "r@x.io" },
+  });
+  fireEvent.change(screen.getByLabelText("Password"), {
+    target: { value: "Password123" },
+  });
   fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
-  await waitFor(() => expect(api.post).toHaveBeenCalledWith("/auth/login", { email: "r@x.io", password: "Password123" }));
+  await waitFor(() =>
+    expect(api.post).toHaveBeenCalledWith("/auth/login", {
+      email: "r@x.io",
+      password: "Password123",
+    }),
+  );
 });

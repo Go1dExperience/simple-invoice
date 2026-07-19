@@ -15,7 +15,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(null);
   };
   const refresh = () => setToken(localStorage.getItem(TOKEN_KEY));
-  return <Ctx.Provider value={{ isAuthenticated: !!token, logout, refresh }}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={{ isAuthenticated: !!token, logout, refresh }}>
+      {children}
+    </Ctx.Provider>
+  );
 };
 
 export const useAuth = () => {

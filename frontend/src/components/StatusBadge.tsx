@@ -1,4 +1,4 @@
-import { DisplayStatus } from "../api/types";
+import { DisplayStatus } from "@/types/invoice";
 import { Badge } from "./ui/badge";
 
 const MAP: Record<DisplayStatus, string> = {
@@ -9,7 +9,10 @@ const MAP: Record<DisplayStatus, string> = {
 };
 
 export const StatusBadge = ({ status }: { status: DisplayStatus }) => (
-  <Badge variant="outline" className={`rounded-full px-3 py-1 text-xs font-bold ${MAP[status]}`}>
+  <Badge
+    variant="outline"
+    className={`rounded-full px-3 py-1 text-xs font-bold ${MAP[status]}`}
+  >
     {status}
   </Badge>
 );

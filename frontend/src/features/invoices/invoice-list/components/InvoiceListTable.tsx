@@ -1,12 +1,13 @@
-import { InvoiceListItem, Paged } from "@/api/types";
 import { InvoiceTable } from "@/components/InvoiceTable";
 import { Pagination } from "@/components/Pagination";
 import { useNavigate } from "react-router-dom";
 import { useInvoiceListParams } from "../hooks/useInvoiceListParams";
+import { PageData } from "@/types";
+import { InvoiceListItem } from "@/types/invoice";
 
 type Props = {
   isLoading: boolean;
-  data: NoInfer<Paged<InvoiceListItem>> | undefined;
+  data: PageData<InvoiceListItem>;
 };
 export const InvoiceListTable = ({ isLoading, data }: Props) => {
   const navigate = useNavigate();

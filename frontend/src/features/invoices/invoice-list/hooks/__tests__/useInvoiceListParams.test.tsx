@@ -43,12 +43,20 @@ it("writes filter changes into the URL and resets to page 1", () => {
 
 it("restores params from the current URL on mount", () => {
   const initialWrapper = ({ children }: { children: React.ReactNode }) => (
-    <MemoryRouter initialEntries={["/invoices?keyword=paul&status=Paid&page=2"]}>
+    <MemoryRouter
+      initialEntries={["/invoices?keyword=paul&status=Paid&page=2"]}
+    >
       {children}
     </MemoryRouter>
   );
-  const { result } = renderHook(() => useInvoiceListParams(), { wrapper: initialWrapper });
-  expect(result.current.params).toMatchObject({ keyword: "paul", status: "Paid", page: 2 });
+  const { result } = renderHook(() => useInvoiceListParams(), {
+    wrapper: initialWrapper,
+  });
+  expect(result.current.params).toMatchObject({
+    keyword: "paul",
+    status: "Paid",
+    page: 2,
+  });
 });
 
 it("keeps filters and the list in sync since both read the same URL", () => {

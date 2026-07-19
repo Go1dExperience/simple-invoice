@@ -1,5 +1,6 @@
 import { Controller } from "react-hook-form";
 import { Card } from "../../../../components/Card";
+import { DateField } from "../../../../components/DateField";
 import { Field } from "../../../../components/Field";
 import { Button } from "../../../../components/ui/button";
 import { Label } from "../../../../components/ui/label";
@@ -14,7 +15,8 @@ import { useCreateInvoiceForm } from "../hooks/useCreateInvoiceForm";
 import { useNavigate } from "react-router-dom";
 
 export const CreateInvoiceForm = () => {
-  const { register, control, errors, onSubmit, create } = useCreateInvoiceForm();
+  const { register, control, errors, onSubmit, create } =
+    useCreateInvoiceForm();
   const navigate = useNavigate();
   const onCancel = () => navigate("/");
   return (
@@ -43,7 +45,9 @@ export const CreateInvoiceForm = () => {
             error={errors.invoiceNumber?.message}
           />
           <div className="mb-4">
-            <Label className="mb-1.5 block font-normal text-slate-500">Currency *</Label>
+            <Label className="mb-1.5 block font-normal text-slate-500">
+              Currency *
+            </Label>
             <Controller
               control={control}
               name="currency"
@@ -61,17 +65,29 @@ export const CreateInvoiceForm = () => {
               )}
             />
           </div>
-          <Field
-            label="Invoice date *"
-            type="date"
-            {...register("invoiceDate")}
-            error={errors.invoiceDate?.message}
+          <Controller
+            control={control}
+            name="invoiceDate"
+            render={({ field }) => (
+              <DateField
+                label="Invoice date *"
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.invoiceDate?.message}
+              />
+            )}
           />
-          <Field
-            label="Due date *"
-            type="date"
-            {...register("dueDate")}
-            error={errors.dueDate?.message}
+          <Controller
+            control={control}
+            name="dueDate"
+            render={({ field }) => (
+              <DateField
+                label="Due date *"
+                value={field.value}
+                onChange={field.onChange}
+                error={errors.dueDate?.message}
+              />
+            )}
           />
         </div>
         <Card.Header>Line item</Card.Header>

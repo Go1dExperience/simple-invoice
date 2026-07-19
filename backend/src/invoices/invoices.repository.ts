@@ -13,12 +13,21 @@ export interface CreateInvoiceInput {
   currencySymbol: string;
 }
 
+export type InvoiceWithCustomerAndItems = Prisma.InvoiceGetPayload<{
+  include: { customer: true; items: true };
+}>;
+
+export type InvoiceWithCustomer = Prisma.InvoiceGetPayload<{
+  include: { customer: true };
+}>;
+
 @Injectable()
 export class InvoicesRepository {
   constructor(private prisma: PrismaService) {}
 
   createWithCustomer(input: CreateInvoiceInput) {
-    const { dto, userId, subTotal, taxAmount, totalAmount, currencySymbol } = input;
+    const { dto, userId, subTotal, taxAmount, totalAmount, currencySymbol } =
+      input;
     return this.prisma.$transaction(async (tx) => {
       const customer = await tx.customer.create({ data: { ...dto.customer } });
       return tx.invoice.create({
@@ -62,26 +71,43 @@ export class InvoicesRepository {
   findManyByFilter(q: ListInvoicesQuery, today: Date) {
     const page = q.page ?? 1;
     const pageSize = q.pageSize ?? 10;
-    const where: any = {};
+    // Composed as an AND list so independent filters can never overwrite
+    // each other (a date range plus status=Overdue both constrain dueDate).
+    const filters: Prisma.InvoiceWhereInput[] = [];
 
     if (q.keyword) {
-      where.OR = [
-        { invoiceNumber: { contains: q.keyword, mode: "insensitive" } },
-        { customer: { fullname: { contains: q.keyword, mode: "insensitive" } } },
-      ];
+      filters.push({
+        OR: [
+          { invoiceNumber: { contains: q.keyword, mode: "insensitive" } },
+          {
+            customer: {
+              fullname: { contains: q.keyword, mode: "insensitive" },
+            },
+          },
+        ],
+      });
     }
     if (q.fromDate || q.toDate) {
-      where.invoiceDate = {};
-      if (q.fromDate) where.invoiceDate.gte = new Date(q.fromDate);
-      if (q.toDate) where.invoiceDate.lte = new Date(q.toDate);
+      filters.push({
+        invoiceDate: {
+          ...(q.fromDate ? { gte: new Date(q.fromDate) } : {}),
+          ...(q.toDate ? { lte: new Date(q.toDate) } : {}),
+        },
+      });
     }
-    const overdue = { status: { not: "Paid" as const }, dueDate: { lt: today } };
-    if (q.status === "Overdue") Object.assign(where, overdue);
-    else if (q.status === "Paid") where.status = "Paid";
+
+    const overdue: Prisma.InvoiceWhereInput = {
+      status: { not: "Paid" },
+      dueDate: { lt: today },
+    };
+    if (q.status === "Overdue") filters.push(overdue);
+    else if (q.status === "Paid") filters.push({ status: "Paid" });
     else if (q.status === "Draft" || q.status === "Pending") {
-      where.status = q.status;
-      where.NOT = overdue;
+      filters.push({ status: q.status, NOT: overdue });
     }
+
+    const where: Prisma.InvoiceWhereInput =
+      filters.length > 0 ? { AND: filters } : {};
 
     return Promise.all([
       this.prisma.invoice.findMany({
