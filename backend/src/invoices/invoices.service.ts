@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
 import { calculateTotals } from "./logic/calculate-totals";
 import { deriveStatus } from "./logic/derive-status";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
@@ -15,10 +14,7 @@ const SYMBOLS: Record<string, string> = { AUD: "AU$", USD: "US$", GBP: "£" };
 
 @Injectable()
 export class InvoicesService {
-  constructor(
-    private repo: InvoicesRepository,
-    private prisma?: PrismaService,
-  ) {}
+  constructor(private repo: InvoicesRepository) {}
 
   async create(dto: CreateInvoiceDto, userId: string) {
     const { subTotal, taxAmount, totalAmount } = calculateTotals({
@@ -70,10 +66,7 @@ export class InvoicesService {
   }
 
   async findOne(id: string) {
-    const inv = await this.prisma!.invoice.findUnique({
-      where: { id },
-      include: { customer: true, items: true },
-    });
+    const inv = await this.repo.findById(id);
     if (!inv) throw new NotFoundException("Invoice not found");
     return this.toDetail(inv, new Date());
   }

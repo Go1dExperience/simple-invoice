@@ -52,6 +52,13 @@ export class InvoicesRepository {
     });
   }
 
+  findById(id: string) {
+    return this.prisma.invoice.findUnique({
+      where: { id },
+      include: { customer: true, items: true },
+    });
+  }
+
   findManyByFilter(q: ListInvoicesQuery, today: Date) {
     const page = q.page ?? 1;
     const pageSize = q.pageSize ?? 10;

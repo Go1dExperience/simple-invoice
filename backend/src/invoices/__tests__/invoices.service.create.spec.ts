@@ -30,7 +30,7 @@ describe('InvoicesService.create', () => {
   it('creates a Draft invoice with server-computed totals', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-06-15'));
     const repo = buildRepo();
-    const service = new InvoicesService(repo as any, {} as any);
+    const service = new InvoicesService(repo as any);
     const res = await service.create(dto as any, 'u1');
     expect(res.status).toBe('Draft');
     expect(res.totalAmount).toBe('2180.00');
@@ -47,7 +47,7 @@ describe('InvoicesService.create', () => {
   it('maps a duplicate invoiceNumber to a 409', async () => {
     const err: any = new Error('dup'); err.code = 'P2002';
     const repo = buildRepo({ createWithCustomer: jest.fn().mockRejectedValue(err) });
-    const service = new InvoicesService(repo as any, {} as any);
+    const service = new InvoicesService(repo as any);
     await expect(service.create(dto as any, 'u1')).rejects.toBeInstanceOf(ConflictException);
   });
 });
