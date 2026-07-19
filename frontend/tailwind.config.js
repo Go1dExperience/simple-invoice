@@ -8,6 +8,7 @@ export default {
         ink: "#061229",
         accent: "#ffbe2e",
         accentDeep: "#e0a413",
+        canvas: "#f6f7f9",
       },
     },
   },

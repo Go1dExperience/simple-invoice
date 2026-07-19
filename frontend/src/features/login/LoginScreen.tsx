@@ -30,7 +30,7 @@ export const LoginScreen = () => {
   });
 
   return (
-    <div className="grid min-h-screen place-items-center bg-[#f6f7f9] p-6">
+    <div className="grid min-h-screen place-items-center p-6">
       <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="bg-[linear-gradient(180deg,rgba(6,18,41,.56),rgba(6,18,41,0)),#0a1c3d] px-7 pb-6 pt-8 text-center">
           <div className="text-xl font-extrabold text-white">SimpleInvoice</div>
