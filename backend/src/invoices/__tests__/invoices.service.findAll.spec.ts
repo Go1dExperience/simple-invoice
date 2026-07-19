@@ -1,47 +1,44 @@
 import { InvoicesService } from '../invoices.service';
 
-const makePrisma = () => ({
-  $transaction: jest.fn(),
-  invoice: { findMany: jest.fn().mockResolvedValue([]), count: jest.fn().mockResolvedValue(0) },
+const row = {
+  id: 'inv1', invoiceNumber: 'IV-1',
+  customer: { fullname: 'Paul' },
+  invoiceDate: new Date('2026-07-01'), dueDate: new Date('2026-07-10'),
+  totalAmount: '2180.00', status: 'Pending',
+};
+
+const buildRepo = (rows: any[] = [row], total = 1) => ({
+  findManyByFilter: jest.fn().mockResolvedValue([rows, total]),
 });
 
 describe('InvoicesService.findAll', () => {
-  it('paginates with defaults (page 1, size 10, invoiceDate DESC)', async () => {
-    const prisma = makePrisma();
-    await new InvoicesService({} as any, prisma as any).findAll({} as any);
-    const args = prisma.invoice.findMany.mock.calls[0][0];
-    expect(args.skip).toBe(0);
-    expect(args.take).toBe(10);
-    expect(args.orderBy).toEqual({ invoiceDate: 'desc' });
+  it('paginates with defaults (page 1, size 10) and forwards the query to the repository', async () => {
+    const repo = buildRepo([], 0);
+    const service = new InvoicesService(repo as any);
+    const res = await service.findAll({} as any);
+    expect(res.paging).toEqual({ page: 1, pageSize: 10, total: 0 });
+    expect(repo.findManyByFilter).toHaveBeenCalledTimes(1);
+    const [query] = repo.findManyByFilter.mock.calls[0];
+    expect(query).toEqual({});
   });
 
-  it('applies a case-insensitive keyword over invoiceNumber and customer name', async () => {
-    const prisma = makePrisma();
-    await new InvoicesService({} as any, prisma as any).findAll({ keyword: 'pau' } as any);
-    const where = prisma.invoice.findMany.mock.calls[0][0].where;
-    expect(where.OR).toEqual([
-      { invoiceNumber: { contains: 'pau', mode: 'insensitive' } },
-      { customer: { fullname: { contains: 'pau', mode: 'insensitive' } } },
-    ]);
+  it('honors a custom page and pageSize when paginating', async () => {
+    const repo = buildRepo([], 0);
+    const service = new InvoicesService(repo as any);
+    const res = await service.findAll({ page: 3, pageSize: 20 } as any);
+    expect(res.paging).toEqual({ page: 3, pageSize: 20, total: 0 });
   });
 
-  it('translates status=Overdue into unpaid + past-due', async () => {
-    const prisma = makePrisma();
+  it('maps rows to the list shape with derived status and formatted totals', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-07-17'));
-    await new InvoicesService({} as any, prisma as any).findAll({ status: 'Overdue' } as any);
-    const where = prisma.invoice.findMany.mock.calls[0][0].where;
-    expect(where.status).toEqual({ not: 'Paid' });
-    expect(where.dueDate.lt).toEqual(new Date('2026-07-17'));
-    jest.useRealTimers();
-  });
-
-  it('translates status=Pending into persisted Pending AND not past-due', async () => {
-    const prisma = makePrisma();
-    jest.useFakeTimers().setSystemTime(new Date('2026-07-17'));
-    await new InvoicesService({} as any, prisma as any).findAll({ status: 'Pending' } as any);
-    const where = prisma.invoice.findMany.mock.calls[0][0].where;
-    expect(where.status).toBe('Pending');
-    expect(where.NOT).toEqual({ status: { not: 'Paid' }, dueDate: { lt: new Date('2026-07-17') } });
+    const repo = buildRepo();
+    const service = new InvoicesService(repo as any);
+    const res = await service.findAll({} as any);
+    expect(res.data).toEqual([{
+      invoiceId: 'inv1', invoiceNumber: 'IV-1', customerName: 'Paul',
+      invoiceDate: '2026-07-01', dueDate: '2026-07-10',
+      totalAmount: '2180.00', status: 'Overdue',
+    }]);
     jest.useRealTimers();
   });
 });

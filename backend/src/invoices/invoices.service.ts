@@ -17,7 +17,7 @@ const SYMBOLS: Record<string, string> = { AUD: "AU$", USD: "US$", GBP: "£" };
 export class InvoicesService {
   constructor(
     private repo: InvoicesRepository,
-    private prisma: PrismaService,
+    private prisma?: PrismaService,
   ) {}
 
   async create(dto: CreateInvoiceDto, userId: string) {
@@ -55,44 +55,7 @@ export class InvoicesService {
     const page = q.page ?? 1;
     const pageSize = q.pageSize ?? 10;
     const today = new Date(new Date().toISOString().slice(0, 10));
-    const where: any = {};
-
-    if (q.keyword) {
-      where.OR = [
-        { invoiceNumber: { contains: q.keyword, mode: "insensitive" } },
-        {
-          customer: { fullname: { contains: q.keyword, mode: "insensitive" } },
-        },
-      ];
-    }
-    if (q.fromDate || q.toDate) {
-      where.invoiceDate = {};
-      if (q.fromDate) where.invoiceDate.gte = new Date(q.fromDate);
-      if (q.toDate) where.invoiceDate.lte = new Date(q.toDate);
-    }
-    const overdue = {
-      status: { not: "Paid" as const },
-      dueDate: { lt: today },
-    };
-    if (q.status === "Overdue") Object.assign(where, overdue);
-    else if (q.status === "Paid") where.status = "Paid";
-    else if (q.status === "Draft" || q.status === "Pending") {
-      where.status = q.status;
-      where.NOT = overdue;
-    }
-
-    const [rows, total] = await Promise.all([
-      this.prisma.invoice.findMany({
-        where,
-        include: { customer: true },
-        orderBy: {
-          [q.sortBy ?? "invoiceDate"]: (q.ordering ?? "DESC").toLowerCase(),
-        },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      this.prisma.invoice.count({ where }),
-    ]);
+    const [rows, total] = await this.repo.findManyByFilter(q, today);
 
     const data = rows.map((inv: any) => ({
       invoiceId: inv.id,
@@ -107,7 +70,7 @@ export class InvoicesService {
   }
 
   async findOne(id: string) {
-    const inv = await this.prisma.invoice.findUnique({
+    const inv = await this.prisma!.invoice.findUnique({
       where: { id },
       include: { customer: true, items: true },
     });
