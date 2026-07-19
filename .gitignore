@@ -47,6 +47,10 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# tsc -b output for vite.config.ts (project-references build artifact)
+frontend/vite.config.js
+frontend/vite.config.d.ts
+
 # Optional npm cache directory
 .npm
 
