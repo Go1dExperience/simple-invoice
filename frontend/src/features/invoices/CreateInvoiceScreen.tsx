@@ -1,0 +1,1 @@
+export const CreateInvoiceScreen = () => null;
