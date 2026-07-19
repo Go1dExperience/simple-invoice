@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Optional,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
@@ -9,12 +10,13 @@ import { calculateTotals } from "./logic/calculate-totals";
 import { deriveStatus } from "./logic/derive-status";
 import { CreateInvoiceDto } from "./dto/create-invoice.dto";
 import { ListInvoicesQuery } from "./dto/list-invoices.dto";
+import { InvoicesRepository } from "./invoices.repository";
 
 const SYMBOLS: Record<string, string> = { AUD: "AU$", USD: "US$", GBP: "£" };
 
 @Injectable()
 export class InvoicesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private repo: InvoicesRepository, @Optional() private prisma?: PrismaService) {}
 
   async create(dto: CreateInvoiceDto, userId: string) {
     const { subTotal, taxAmount, totalAmount } = calculateTotals({
@@ -23,39 +25,15 @@ export class InvoicesService {
       taxPercent: dto.taxPercent,
       discount: dto.discount,
     });
+    const currencySymbol = SYMBOLS[dto.currency] ?? dto.currency;
     try {
-      const invoice = await this.prisma.$transaction(async (tx) => {
-        const customer = await tx.customer.create({
-          data: { ...dto.customer },
-        });
-        return tx.invoice.create({
-          data: {
-            invoiceNumber: dto.invoiceNumber,
-            invoiceReference: dto.invoiceReference ?? null,
-            invoiceDate: new Date(dto.invoiceDate),
-            dueDate: new Date(dto.dueDate),
-            currency: dto.currency,
-            currencySymbol: SYMBOLS[dto.currency] ?? dto.currency,
-            description: dto.description ?? null,
-            status: "Draft",
-            invoiceSubTotal: subTotal,
-            totalTax: taxAmount,
-            totalDiscount: dto.discount.toFixed(2),
-            totalAmount,
-            totalPaid: "0.00",
-            balanceAmount: totalAmount,
-            createdBy: userId,
-            customerId: customer.id,
-            items: {
-              create: {
-                name: dto.item.name,
-                quantity: dto.item.quantity,
-                rate: new Prisma.Decimal(dto.item.rate),
-              },
-            },
-          },
-          include: { customer: true, items: true },
-        });
+      const invoice = await this.repo.createWithCustomer({
+        dto,
+        userId,
+        subTotal,
+        taxAmount,
+        totalAmount,
+        currencySymbol,
       });
       return this.toDetail(invoice, new Date());
     } catch (e) {
@@ -102,7 +80,7 @@ export class InvoicesService {
     }
 
     const [rows, total] = await Promise.all([
-      this.prisma.invoice.findMany({
+      this.prisma!.invoice.findMany({
         where,
         include: { customer: true },
         orderBy: {
@@ -111,7 +89,7 @@ export class InvoicesService {
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      this.prisma.invoice.count({ where }),
+      this.prisma!.invoice.count({ where }),
     ]);
 
     const data = rows.map((inv: any) => ({
@@ -127,7 +105,7 @@ export class InvoicesService {
   }
 
   async findOne(id: string) {
-    const inv = await this.prisma.invoice.findUnique({
+    const inv = await this.prisma!.invoice.findUnique({
       where: { id },
       include: { customer: true, items: true },
     });
