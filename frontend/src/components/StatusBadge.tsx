@@ -1,4 +1,5 @@
 import { DisplayStatus } from "../api/types";
+import { Badge } from "./ui/badge";
 
 const MAP: Record<DisplayStatus, string> = {
   Draft: "bg-slate-100 text-slate-600 border-slate-200",
@@ -8,5 +9,7 @@ const MAP: Record<DisplayStatus, string> = {
 };
 
 export const StatusBadge = ({ status }: { status: DisplayStatus }) => (
-  <span className={`inline-block rounded-full border px-3 py-1 text-xs font-bold ${MAP[status]}`}>{status}</span>
+  <Badge variant="outline" className={`rounded-full px-3 py-1 text-xs font-bold ${MAP[status]}`}>
+    {status}
+  </Badge>
 );

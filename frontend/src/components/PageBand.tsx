@@ -1,8 +1,7 @@
 import { ReactNode } from "react";
 
-const grad = "bg-[linear-gradient(180deg,rgba(6,18,41,.56),rgba(6,18,41,0)),#0a1c3d]";
 const PageBand = ({ children }: { children: ReactNode }) => (
-  <div className={`mb-5 flex flex-wrap items-start justify-between gap-4 rounded-2xl ${grad} px-6 py-6 shadow-lg`}>
+  <div className={`mb-5 flex flex-wrap items-start justify-between gap-4 rounded-2xl bg-darkBlue px-6 py-6 shadow-lg`}>
     {children}
   </div>
 );

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../api/useLogin";
 import { useAuth } from "../../auth/AuthContext";
 import { Field } from "../../components/Field";
-import { Button } from "../../components/Button";
+import { Button } from "../../components/ui/button";
 
 const schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -32,7 +32,7 @@ export const LoginScreen = () => {
   return (
     <div className="grid min-h-screen place-items-center p-6">
       <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="bg-[linear-gradient(180deg,rgba(6,18,41,.56),rgba(6,18,41,0)),#0a1c3d] px-7 pb-6 pt-8 text-center">
+        <div className="bg-[linear-gradient(180deg,rgba(6,18,41,.56),rgba(6,18,41,0))] px-7 pb-6 pt-8 text-center">
           <div className="text-xl font-extrabold text-white">SimpleInvoice</div>
           <p className="mt-2 text-sm text-white/60">Sign in to manage your invoices</p>
         </div>

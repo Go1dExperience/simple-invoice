@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
-import { useInvoice } from "../../api/useInvoice";
-import { PageBand } from "../../components/PageBand";
-import { Card } from "../../components/Card";
-import { StatusBadge } from "../../components/StatusBadge";
+import { useInvoice } from "../../../api/useInvoice";
+import { PageBand } from "../../../components/PageBand";
+import { Card } from "../../../components/Card";
+import { StatusBadge } from "../../../components/StatusBadge";
 
 const Row = ({ label, value }: { label: string; value?: string }) => (
   <div className="grid grid-cols-[140px_1fr] gap-4 py-1 text-sm">
